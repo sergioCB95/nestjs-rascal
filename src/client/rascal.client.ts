@@ -15,18 +15,11 @@ export class RascalClient extends ClientProxy {
   private readonly configKey: string;
   private readonly logger = new Logger(RascalClient.name);
 
-  constructor({
-    rascalService,
-    configService,
-    serializer,
-    onPublicationError,
-    configKey,
-  }: RascalClientOptions) {
+  constructor({ rascalService, configService, serializer, onPublicationError, configKey }: RascalClientOptions) {
     super();
     this.rascalService = rascalService;
     this.configService = configService;
-    this.onPublicationError =
-      onPublicationError ?? defaultOnPublicationError(this.logger);
+    this.onPublicationError = onPublicationError ?? defaultOnPublicationError(this.logger);
     this.configKey = configKey ?? DefaultConfigKey;
     this.initializeSerializer({
       serializer: serializer ?? new OutboundMessageIdentitySerializer(),
@@ -35,9 +28,7 @@ export class RascalClient extends ClientProxy {
 
   async connect(): Promise<any> {
     if (!this.broker) {
-      this.broker = await this.rascalService.connect(
-        this.configService.get(this.configKey),
-      );
+      this.broker = await this.rascalService.connect(this.configService.get(this.configKey));
     }
     return this.broker;
   }
@@ -62,10 +53,7 @@ export class RascalClient extends ClientProxy {
     return await this.publishEvent(packet);
   }
 
-  publish(
-    packet: ReadPacket,
-    callback: (packet: WritePacket) => void,
-  ): () => void {
+  publish(packet: ReadPacket, callback: (packet: WritePacket) => void): () => void {
     this.logger.verbose(`Dispatching event {${packet.pattern}}`);
     this.publishEvent(packet)
       .then(callback)

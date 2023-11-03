@@ -10,19 +10,12 @@ export class RascalServer extends Server implements CustomTransportStrategy {
   private readonly onMessage: (config: OnMessageConfig) => Promise<void>;
   private readonly onSubscriptionError: (err: any) => Promise<void>;
 
-  constructor({
-    rascalService,
-    config = {},
-    deserializer,
-    onMessage,
-    onSubscriptionError,
-  }: RascalServerOptions) {
+  constructor({ rascalService, config = {}, deserializer, onMessage, onSubscriptionError }: RascalServerOptions) {
     super();
     this.config = config;
     this.rascalService = rascalService;
     this.onMessage = onMessage ?? defaultOnMessage(this.logger);
-    this.onSubscriptionError =
-      onSubscriptionError ?? defaultOnSubscriptionError(this.logger);
+    this.onSubscriptionError = onSubscriptionError ?? defaultOnSubscriptionError(this.logger);
     this.initializeDeserializer({
       deserializer: deserializer ?? new InboundMessageIdentityDeserializer(),
     });
@@ -33,7 +26,7 @@ export class RascalServer extends Server implements CustomTransportStrategy {
     for await (const [pattern, handler] of this.messageHandlers.entries()) {
       const subscription = await this.rascalService.subscribe(pattern);
       subscription
-        .on('message', async (message, content, ackOrNack) => {
+        .on('message', async (message: any, content: any, ackOrNack: (err?: any, options?: any) => Promise<void>) => {
           const { data } = await this.deserializer.deserialize(message, {
             pattern,
           });

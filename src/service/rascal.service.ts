@@ -11,8 +11,7 @@ export class RascalService {
 
   constructor({ brokerSetUp, onConnectionError }: RascalServiceOptions = {}) {
     this.brokerSetUp = brokerSetUp ?? defaultBrokerSetUp(this.logger);
-    this.onConnectionError =
-      onConnectionError ?? defaultOnConnectionError(this.logger);
+    this.onConnectionError = onConnectionError ?? defaultOnConnectionError(this.logger);
   }
 
   async connect(config: any = {}): Broker {
