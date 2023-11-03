@@ -5,15 +5,21 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
-      "test": "jest",
-      "build": "tsc"
+        "test": "jest",
+        "build": "tsc"
     },
     "keywords": [],
     "author": "Sergio Cámara",
     "license": "MIT",
     "devDependencies": {
-      "@types/jest": "^26.0.15",
-      "jest": "^26.4.2",
-      "typescript": "^4.0.3"
+        "@types/jest": "^26.0.15",
+        "jest": "^26.4.2",
+        "typescript": "^4.0.3"
+    },
+    "dependencies": {
+        "@nestjs/common": "^10.2.8",
+        "@nestjs/config": "^3.1.1",
+        "@nestjs/microservices": "^10.2.8",
+        "rascal": "^17.0.1"
     }
-  }
+}
