@@ -26,6 +26,9 @@ export class RascalServer extends Server implements CustomTransportStrategy {
     await this.rascalService.connect(this.config);
     for await (const [pattern, handler] of this.messageHandlers.entries()) {
       const subscription = await this.rascalService.subscribe(pattern);
+      if (!subscription) {
+        throw new Error(`Rascal subscription not found for {${pattern}}`);
+      }
       subscription
         .on('message', async (message, content: any, ackOrNack: AckOrNack) => {
           const { data } = await this.deserializer.deserialize(message, {
