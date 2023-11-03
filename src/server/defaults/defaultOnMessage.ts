@@ -13,7 +13,7 @@ export const defaultOnMessage =
       ackOrNack();
     } catch (err) {
       logger.error(err);
-      ackOrNack(err, [
+      ackOrNack(err as Error, [
         {
           strategy: 'republish',
           defer: 1000,

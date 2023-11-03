@@ -41,6 +41,9 @@ export class RascalClient extends ClientProxy {
     try {
       const { pattern, data } = this.serializer.serialize(packet);
       const publication = await this.rascalService.publish(pattern, data);
+      if (!publication) {
+        throw new Error(`Rascal publication not found for {${pattern}}`);
+      }
       publication.on('error', this.onPublicationError);
       return publication;
     } catch (err) {
