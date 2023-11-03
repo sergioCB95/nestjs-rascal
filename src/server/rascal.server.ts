@@ -3,6 +3,7 @@ import { RascalService } from '../service';
 import { InboundMessageIdentityDeserializer } from './deserializer';
 import { defaultOnMessage, defaultOnSubscriptionError } from './defaults';
 import { OnMessageConfig, RascalServerOptions } from '.';
+import { AckOrNack } from 'rascal';
 
 export class RascalServer extends Server implements CustomTransportStrategy {
   private readonly config: any;
@@ -26,7 +27,7 @@ export class RascalServer extends Server implements CustomTransportStrategy {
     for await (const [pattern, handler] of this.messageHandlers.entries()) {
       const subscription = await this.rascalService.subscribe(pattern);
       subscription
-        .on('message', async (message: any, content: any, ackOrNack: (err?: any, options?: any) => Promise<void>) => {
+        .on('message', async (message, content: any, ackOrNack: AckOrNack) => {
           const { data } = await this.deserializer.deserialize(message, {
             pattern,
           });

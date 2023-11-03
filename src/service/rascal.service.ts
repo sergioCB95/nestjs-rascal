@@ -4,7 +4,7 @@ import { defaultBrokerSetUp, defaultOnConnectionError } from './defaults';
 import { RascalServiceOptions } from './rascalService.options';
 
 export class RascalService {
-  broker: Broker;
+  broker: Broker | null = null;
   private readonly logger = new Logger(RascalService.name);
   private readonly brokerSetUp: () => Promise<void>;
   private readonly onConnectionError: (err: any) => Promise<void>;
@@ -14,7 +14,7 @@ export class RascalService {
     this.onConnectionError = onConnectionError ?? defaultOnConnectionError(this.logger);
   }
 
-  async connect(config: any = {}): Broker {
+  async connect(config: any = {}): Promise<Broker> {
     this.broker = await Broker.create(config);
     this.broker.on('error', this.onConnectionError);
     await this.brokerSetUp();
@@ -22,18 +22,27 @@ export class RascalService {
     return this.broker;
   }
 
+  checkBrokerInitialized() {
+    if (!this.broker) {
+      throw new Error('Rascal broker not initialized');
+    }
+  }
+
   async shutdown() {
-    await this.broker.shutdown();
+    this.checkBrokerInitialized();
+    await this.broker?.shutdown();
     this.logger.log(`Rascal broker shutdown`);
   }
 
   async publish(event: string, message: any) {
+    this.checkBrokerInitialized();
     this.logger.verbose(`Publishing message to {${event}}`);
-    return await this.broker.publish(event, message);
+    return await this.broker?.publish(event, message);
   }
 
   async subscribe(event: string) {
+    this.checkBrokerInitialized();
     this.logger.verbose(`Subscribing to {${event}}`);
-    return this.broker.subscribe(event);
+    return this.broker?.subscribe(event);
   }
 }

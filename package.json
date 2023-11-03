@@ -15,6 +15,7 @@
     "license": "MIT",
     "devDependencies": {
         "@types/jest": "^26.0.15",
+        "@types/rascal": "^10.0.8",
         "@typescript-eslint/eslint-plugin": "^6.9.1",
         "@typescript-eslint/parser": "^6.9.1",
         "eslint": "^8.52.0",

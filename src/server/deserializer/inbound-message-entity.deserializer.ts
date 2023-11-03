@@ -9,7 +9,7 @@ export class InboundMessageIdentityDeserializer implements ConsumerDeserializer 
       `<<-- deserializing inbound message:\n${JSON.stringify(value)}\n\twith options: ${JSON.stringify(options)}`,
     );
     return {
-      pattern: options.pattern || '',
+      pattern: options?.pattern || '',
       data: JSON.parse(value.content.toString()),
     };
   }

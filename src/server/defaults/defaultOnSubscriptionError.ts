@@ -1,1 +1,3 @@
-export const defaultOnSubscriptionError = (logger) => async (err: any) => logger.error(err);
+import { LoggerService } from '@nestjs/common';
+
+export const defaultOnSubscriptionError = (logger: LoggerService) => async (err: unknown) => logger.error(err);

@@ -1,8 +1,10 @@
 import { isObservable } from 'rxjs';
+import { LoggerService } from '@nestjs/common';
+import { OnMessageConfig } from '../onMessageConfig';
 
 export const defaultOnMessage =
-  (logger) =>
-  async ({ handler, data, ackOrNack }) => {
+  (logger: LoggerService) =>
+  async ({ handler, data, ackOrNack }: OnMessageConfig) => {
     try {
       const streamOrResult = await handler(data);
       if (isObservable(streamOrResult)) {

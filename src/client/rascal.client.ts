@@ -8,7 +8,7 @@ import { RascalClientOptions } from './';
 import { DefaultConfigKey, defaultOnPublicationError } from './defaults';
 
 export class RascalClient extends ClientProxy {
-  private broker: Broker;
+  private broker: Broker | null = null;
   private readonly rascalService: RascalService;
   private readonly configService: ConfigService;
   private readonly onPublicationError: (err: any, messageId: string) => void;
@@ -44,7 +44,10 @@ export class RascalClient extends ClientProxy {
       publication.on('error', this.onPublicationError);
       return publication;
     } catch (err) {
-      throw new Error(`Rascal config error: ${err.message}`);
+      if (err instanceof Error) {
+        throw new Error(`Rascal config error: ${err.message}`);
+      }
+      throw err;
     }
   }
 
