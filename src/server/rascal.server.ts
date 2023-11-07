@@ -1,22 +1,27 @@
 import { CustomTransportStrategy, Server } from '@nestjs/microservices';
 import { RascalService } from '../service';
 import { InboundMessageIdentityDeserializer } from './deserializer';
-import { defaultOnMessage, defaultOnSubscriptionError } from './defaults';
-import { OnMessageConfig, RascalServerOptions } from '.';
+import {
+  OnMessageFn,
+  RascalServerOptions,
+  defaultOnMessage,
+  defaultOnSubscriptionError,
+  onSubscriptionErrorFn,
+} from './options';
 import { AckOrNack } from 'rascal';
 
 export class RascalServer extends Server implements CustomTransportStrategy {
   private readonly config: any;
   private readonly rascalService: RascalService;
-  private readonly onMessage: (config: OnMessageConfig) => Promise<void>;
-  private readonly onSubscriptionError: (err: any) => Promise<void>;
+  private readonly onMessage: OnMessageFn;
+  private readonly onSubscriptionError: onSubscriptionErrorFn;
 
   constructor({ rascalService, config = {}, deserializer, onMessage, onSubscriptionError }: RascalServerOptions) {
     super();
     this.config = config;
     this.rascalService = rascalService;
-    this.onMessage = onMessage ?? defaultOnMessage(this.logger);
-    this.onSubscriptionError = onSubscriptionError ?? defaultOnSubscriptionError(this.logger);
+    this.onMessage = onMessage ?? defaultOnMessage;
+    this.onSubscriptionError = onSubscriptionError ?? defaultOnSubscriptionError;
     this.initializeDeserializer({
       deserializer: deserializer ?? new InboundMessageIdentityDeserializer(),
     });
@@ -34,14 +39,15 @@ export class RascalServer extends Server implements CustomTransportStrategy {
           const { data } = await this.deserializer.deserialize(message, {
             pattern,
           });
-          this.onMessage({
+          await this.onMessage({
             handler,
             data,
             content,
             ackOrNack,
+            logger: this.logger,
           });
         })
-        .on('error', this.onSubscriptionError);
+        .on('error', (err: any) => this.onSubscriptionError({ logger: this.logger, err }));
       this.logger.log(`Mapped {${pattern}} subscription`);
     }
     callback();

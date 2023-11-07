@@ -4,14 +4,13 @@ import { RascalService } from '../service';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import { OutboundMessageIdentitySerializer } from './serializer';
-import { RascalClientOptions } from './';
-import { DefaultConfigKey, defaultOnPublicationError } from './defaults';
+import { onPublicationErrorFn, DefaultConfigKey, defaultOnPublicationError, RascalClientOptions } from './options';
 
 export class RascalClient extends ClientProxy {
   private broker: Broker | null = null;
   private readonly rascalService: RascalService;
   private readonly configService: ConfigService;
-  private readonly onPublicationError: (err: any, messageId: string) => void;
+  private readonly onPublicationError: onPublicationErrorFn;
   private readonly configKey: string;
   private readonly logger = new Logger(RascalClient.name);
 
@@ -19,7 +18,7 @@ export class RascalClient extends ClientProxy {
     super();
     this.rascalService = rascalService;
     this.configService = configService;
-    this.onPublicationError = onPublicationError ?? defaultOnPublicationError(this.logger);
+    this.onPublicationError = onPublicationError ?? defaultOnPublicationError;
     this.configKey = configKey ?? DefaultConfigKey;
     this.initializeSerializer({
       serializer: serializer ?? new OutboundMessageIdentitySerializer(),
@@ -44,7 +43,9 @@ export class RascalClient extends ClientProxy {
       if (!publication) {
         throw new Error(`Rascal publication not found for {${pattern}}`);
       }
-      publication.on('error', this.onPublicationError);
+      publication.on('error', async (err: any, messageId: string) =>
+        this.onPublicationError({ logger: this.logger, err, messageId }),
+      );
       return publication;
     } catch (err) {
       if (err instanceof Error) {

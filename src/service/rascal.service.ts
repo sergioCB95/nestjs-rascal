@@ -1,23 +1,28 @@
 import { BrokerAsPromised as Broker } from 'rascal';
 import { Logger } from '@nestjs/common';
-import { defaultBrokerSetUp, defaultOnConnectionError } from './defaults';
-import { RascalServiceOptions } from './rascalService.options';
+import {
+  defaultBrokerSetUp,
+  defaultOnConnectionError,
+  BrokerSetUpFn,
+  RascalServiceOptions,
+  OnConnectionErrorFn,
+} from './options';
 
 export class RascalService {
   broker: Broker | null = null;
   private readonly logger = new Logger(RascalService.name);
-  private readonly brokerSetUp: () => Promise<void>;
-  private readonly onConnectionError: (err: any) => Promise<void>;
+  private readonly brokerSetUp: BrokerSetUpFn;
+  private readonly onConnectionError: OnConnectionErrorFn;
 
   constructor({ brokerSetUp, onConnectionError }: RascalServiceOptions = {}) {
-    this.brokerSetUp = brokerSetUp ?? defaultBrokerSetUp(this.logger);
-    this.onConnectionError = onConnectionError ?? defaultOnConnectionError(this.logger);
+    this.brokerSetUp = brokerSetUp ?? defaultBrokerSetUp;
+    this.onConnectionError = onConnectionError ?? defaultOnConnectionError;
   }
 
   async connect(config: any = {}): Promise<Broker> {
     this.broker = await Broker.create(config);
-    this.broker.on('error', this.onConnectionError);
-    await this.brokerSetUp();
+    this.broker.on('error', async (err: any) => this.onConnectionError({ logger: this.logger, err }));
+    await this.brokerSetUp({ logger: this.logger, broker: this.broker });
     this.logger.log(`Rascal broker stablished`);
     return this.broker;
   }

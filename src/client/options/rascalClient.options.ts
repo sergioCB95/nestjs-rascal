@@ -1,11 +1,12 @@
 import { ConfigService } from '@nestjs/config';
-import { RascalService } from '../service';
+import { RascalService } from '../../service';
 import { Serializer } from '@nestjs/microservices';
+import { onPublicationErrorFn } from './onPublicationError';
 
 export type RascalClientOptions = {
   readonly rascalService: RascalService;
   readonly configService: ConfigService;
   readonly serializer?: Serializer;
-  onPublicationError?: (err: any, messageId: string) => void;
+  onPublicationError?: onPublicationErrorFn;
   configKey?: string;
 };

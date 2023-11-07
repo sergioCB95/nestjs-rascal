@@ -1,6 +1,6 @@
 import { Deserializer } from '@nestjs/microservices';
-import { RascalService } from '../service';
-import { OnMessageConfig } from '.';
+import { RascalService } from '../../service';
+import { OnMessageConfig } from '..';
 
 export type RascalServerOptions = {
   rascalService: RascalService;

@@ -1,3 +1,4 @@
+import { LoggerService } from '@nestjs/common';
 import { AckOrNack } from 'rascal';
 
 export type OnMessageConfig = {
@@ -5,4 +6,7 @@ export type OnMessageConfig = {
   data: any;
   content: any;
   ackOrNack: AckOrNack;
+  logger: LoggerService;
 };
+
+export type OnMessageFn = (config: OnMessageConfig) => Promise<void>;
